@@ -5,12 +5,17 @@ from src.route.auth_route import AuthRoute
 from src.route.user_route import UserRoute
 from src.service.auth_service import AuthService
 from src.service.user_service import UserService
-from src.util.middle_ware import SQLModelSessionMiddleware
+from src.util.middle_ware import SQLModelSessionMiddleware, LoggingMiddleware
 from src.dao.db import engine
+from prometheus_fastapi_instrumentator import Instrumentator
 
 app = FastAPI()
 # Add middleware for DB session management
 app.add_middleware(SQLModelSessionMiddleware, db_engine=engine)
+app.add_middleware(LoggingMiddleware)
+
+# Create instrumentation instance
+instrumentation = Instrumentator().instrument(app).expose(app)
 
 auth_service = AuthService()
 dto = Dto()
