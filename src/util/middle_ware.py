@@ -36,6 +36,6 @@ class LoggingMiddleware(BaseHTTPMiddleware):
         process_time = round((time.time() - start_time) * 1000, 2)
 
         # Log response status and duration
-        logger.info(f"⬅️ {request.method} {request.url.path} - {response.status_code} ({process_time} ms)")
+        logger.info(f"⬅️ {request.method} {request.url.path}, status_code: {response.status_code}, process time: ({process_time} ms)")
 
         return response

@@ -50,7 +50,7 @@ class Dto:
             role=Role(request.role)
         )
 
-    def convert_to_user_response(self, user: User) -> UserResponse:
+    def to_user_response(self, user: User) -> UserResponse:
         return UserResponse(
             email=user.email,
             first_name=user.first_name,

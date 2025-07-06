@@ -33,15 +33,6 @@ class AuthService:
         encode = {"sub": email, "id": user_id, "role": role, "exp": expires}
         return jwt.encode(encode, secret_key, algorithm=algorithm)
 
-    def authenticate_user(self, email: str, password: str, db):
-        logger.debug(f"Authenticating {email}")
-        user: User = db.query(User).filter(User.email == email).first()
-        if user and self.verify_password(password, user.hashed_password):
-            access_token = self.create_access_token(
-                email, user.id, user.role, timedelta(minutes=20))
-            return {'access_token': access_token, 'token_type': 'bearer'}
-        raise HTTPException(401, UN_AUTHENTICATED)
-
     def check_user(self, user):
         logger.debug(f"User {user}")
         if user is None:
