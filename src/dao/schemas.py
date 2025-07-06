@@ -34,6 +34,7 @@ class CreateUserRequest(SQLModel):
         return value
 
 class UserResponse(SQLModel):
+    id: int
     email: str
     first_name: str
     last_name: str
@@ -52,6 +53,7 @@ class Dto:
 
     def to_user_response(self, user: User) -> UserResponse:
         return UserResponse(
+            id=user.id,
             email=user.email,
             first_name=user.first_name,
             last_name=user.last_name,

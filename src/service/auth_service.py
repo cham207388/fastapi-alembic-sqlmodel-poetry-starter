@@ -33,13 +33,12 @@ class AuthService:
         encode = {"sub": email, "id": user_id, "role": role, "exp": expires}
         return jwt.encode(encode, secret_key, algorithm=algorithm)
 
-    def check_user(self, user):
-        logger.debug(f"User {user}")
-        if user is None:
-            logger.debug(f"{user}")
+    def check_user(self, user_id, user_sess):
+        logger.debug(f"User {user_sess}")
+        if user_sess is None or user_sess.get("id") != user_id:
+            logger.warning("Authentication Failed!")
             raise HTTPException(401, "Authentication Failed!")
 
-    def check_admin(self, user):
-        self.check_user(user)
-        if user.get('role') != Role.ADMIN:
+    def check_admin(self, user_sess):
+        if user_sess is None or user_sess.get('role') != Role.ADMIN:
             raise HTTPException(403, "Authorization Failed!")

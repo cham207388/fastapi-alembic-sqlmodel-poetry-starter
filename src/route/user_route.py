@@ -16,6 +16,7 @@ class UserRoute:
         self.router.get("/{user_id}")(self.get_user_by_id)
 
     def get_all(self, user_sess: user_session, request: Request):
+        self.user_service.auth_service.check_admin(user_sess)
         logger.info(f'{user_sess.get("email")} fetching users.')
         return self.user_service.get_all(request.state.db)
 
@@ -24,6 +25,6 @@ class UserRoute:
         self.user_service.create_user(user_data, request.state.db)
 
     def get_user_by_id(self, user_id: int, user_sess: user_session, request: Request):
-        self.user_service.auth_service.check_user(user_sess)
+        self.user_service.auth_service.check_user(user_id, user_sess)
         logger.info(f'{user_sess.get("email")} retrieving info')
         return self.user_service.get_user_by_id(user_id, request.state.db)
