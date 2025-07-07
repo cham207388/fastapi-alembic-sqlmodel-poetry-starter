@@ -14,7 +14,7 @@ class UserService:
 
     def get_all(self, db):
         users = db.exec(select(User)).all()
-        user_response = [self.dto.convert_to_user_response(user) for user in users]
+        user_response = [self.dto.to_user_response(user) for user in users]
         return user_response
 
     def create_user(self, user_req: User, db):
@@ -26,3 +26,17 @@ class UserService:
             db.add(user)
         except Exception as e:
             logger.error(f'error creating user: {str(e)}')
+
+    def get_by_id(self, user_id, db):
+        try:
+            user: User = db.get(User, user_id)
+            return self.dto.to_user_response(user)
+        except Exception as e:
+            logger.error(f'error creating user: {str(e)}')
+
+    def delete_by_id(self, user_id, db):
+        try:
+            user: User = db.get(User, user_id)
+            db.delete(user)
+        except Exception as e:
+            logger.error(f'error deleting a user: {str(e)}')
