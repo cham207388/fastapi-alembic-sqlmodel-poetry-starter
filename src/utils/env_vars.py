@@ -11,5 +11,3 @@ db_port = os.getenv("POSTGRES_PORT")
 
 secret_key = os.getenv("SECRET_KEY")
 algorithm = os.getenv("ALGORITHM")
-
-DATABASE_URL = f"postgresql://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}"

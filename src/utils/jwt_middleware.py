@@ -2,7 +2,7 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from fastapi import Request, HTTPException, status
 from jose import JWTError, jwt
 
-from src.util.env_vars import secret_key, algorithm
+from src.utils.env_vars import secret_key, algorithm
 
 class JWTAuthMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):

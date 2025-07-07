@@ -1,9 +1,8 @@
 from typing import Annotated
-
 from fastapi import APIRouter, Depends, Request
 from fastapi.security import OAuth2PasswordRequestForm
 
-from src.service.auth_service import AuthService
+from src.services.auth_service import AuthService
 
 
 class AuthRoute:

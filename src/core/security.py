@@ -1,17 +1,18 @@
+from passlib.context import CryptContext
+from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
-from fastapi import Depends, HTTPException
+from fastapi import Depends, HTTPException, Request
 from jose import jwt, JWTError
 from typing import Annotated
 
-from src.util.constants import oauth2_bearer, UN_AUTHENTICATED
-from src.util.env_vars import secret_key, algorithm, DATABASE_URL
-from sqlmodel import create_engine
+from src.core.constants import UN_AUTHENTICATED
+from src.utils.env_vars import secret_key, algorithm
 
-engine = create_engine(DATABASE_URL, echo=False)
+bcrypt_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+oauth2_bearer = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login")
 
-def get_db():
-    with Session(engine) as session:
-        yield session
+def get_db(request: Request) -> Session:
+    return request.state.db
 
 def get_current_user(token: Annotated[str, Depends(oauth2_bearer)]):
     try:

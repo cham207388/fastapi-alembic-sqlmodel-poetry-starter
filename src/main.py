@@ -1,13 +1,13 @@
 from fastapi import FastAPI
-
-from src.dao.schemas import Dto
-from src.route.auth_route import AuthRoute
-from src.route.user_route import UserRoute
-from src.service.auth_service import AuthService
-from src.service.user_service import UserService
-from src.util.middle_ware import SQLModelSessionMiddleware, LoggingMiddleware
-from src.dao.db import engine
 from prometheus_fastapi_instrumentator import Instrumentator
+
+from src.schemas.user import Dto
+from src.api.v1.auth_route import AuthRoute
+from src.api.v1.user_route import UserRoute
+from src.services.auth_service import AuthService
+from src.services.user_service import UserService
+from src.utils.middle_ware import SQLModelSessionMiddleware, LoggingMiddleware
+from src.db.session import engine
 
 app = FastAPI()
 # Add middleware for DB session management

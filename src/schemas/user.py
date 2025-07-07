@@ -1,10 +1,8 @@
-from typing import Optional
-
 from pydantic import EmailStr, field_validator, ConfigDict
 from sqlmodel import Field, SQLModel
 
-from src.dao.models import User, Role
-from src.util.constants import bcrypt_context
+from src.core.security import bcrypt_context
+from src.db.models import Role, User
 
 
 class CreateUserRequest(SQLModel):

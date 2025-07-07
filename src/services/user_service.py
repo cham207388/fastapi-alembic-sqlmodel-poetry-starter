@@ -1,8 +1,9 @@
-from src.dao.schemas import Dto
-from src.service.auth_service import AuthService
 from sqlmodel import select
 from loguru import logger
-from src.dao.models import User
+
+from src.schemas.user import Dto
+from src.services.auth_service import AuthService
+from src.db.models import User
 
 
 class UserService:

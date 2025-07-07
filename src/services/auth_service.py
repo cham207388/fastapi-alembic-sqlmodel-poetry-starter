@@ -4,9 +4,10 @@ from jose import jwt
 from loguru import logger
 from sqlmodel import select
 
-from src.dao.models import Role, User
-from src.util.env_vars import secret_key, algorithm
-from src.util.constants import UN_AUTHENTICATED, bcrypt_context
+from src.db.models import Role, User
+from src.utils.env_vars import secret_key, algorithm
+from src.core.constants import UN_AUTHENTICATED
+from src.core.security import bcrypt_context
 
 
 class AuthService:
