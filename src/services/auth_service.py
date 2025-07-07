@@ -1,5 +1,4 @@
 from datetime import timedelta, datetime, timezone
-from fastapi import HTTPException
 from jose import jwt
 from loguru import logger
 from sqlmodel import select
@@ -8,6 +7,7 @@ from src.db.models import Role, User
 from src.core.env_vars import secret_key, algorithm
 from src.core.constants import UN_AUTHENTICATED
 from src.core.security import bcrypt_context
+from src.utils.exceptions import AuthenticationException, AuthorizationException
 
 
 class AuthService:
@@ -20,7 +20,7 @@ class AuthService:
             access_token = self.create_access_token(
                 email, user.id, user.role, timedelta(minutes=20))
             return {'access_token': access_token, 'token_type': 'bearer'}
-        raise HTTPException(401, UN_AUTHENTICATED)
+        raise AuthenticationException(UN_AUTHENTICATED)
 
     def verify_password(self, password, hashed_password):
         return bcrypt_context.verify(password, hashed_password)
@@ -38,8 +38,8 @@ class AuthService:
         logger.debug(f"User {user_sess}")
         if user_sess is None or user_sess.get("id") != int(user_id):
             logger.warning("Authentication Failed!")
-            raise HTTPException(401, "Authentication Failed!")
+            raise AuthenticationException("Authentication Failed!")
 
     def check_admin(self, user_sess):
         if user_sess is None or user_sess.get('role') != Role.ADMIN:
-            raise HTTPException(403, "Authorization Failed!")
+            raise AuthorizationException("Authorization Failed!")

@@ -1,7 +1,6 @@
-from http import HTTPStatus
 from typing import List
 
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, Request, status
 from loguru import logger
 
 from src.core.security import user_session
@@ -15,7 +14,7 @@ class UserRoute:
         self.router = APIRouter(prefix="/api/v1/users", tags=["Users"])
         self.user_service = user_service
         self.router.get("", response_model=List[UserResponse])(self.get_all)
-        self.router.post("", status_code=HTTPStatus.CREATED)(self.create_user)
+        self.router.post("", status_code=status.HTTP_201_CREATED)(self.create_user)
         self.router.get("/{user_id}")(self.get_by_id)
         self.router.delete("/{user_id}")(self.delete_by_id)
 

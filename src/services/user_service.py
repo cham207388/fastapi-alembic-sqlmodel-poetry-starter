@@ -1,10 +1,10 @@
 from sqlmodel import select
 from loguru import logger
-from fastapi import HTTPException
 
 from src.schemas.user import Dto
 from src.services.auth_service import AuthService
 from src.db.models import User
+from src.utils.exceptions import BadRequestException, ServerException
 
 
 class UserService:
@@ -18,7 +18,7 @@ class UserService:
             users = db.exec(select(User)).all()
             return [self.dto.to_user_response(user) for user in users]
         except Exception as e:
-            raise HTTPException(status_code=500, detail=f'error creating user: {str(e)}')
+            raise ServerException(f'error creating user: {str(e)}')
 
     def create_user(self, user_req: User, db):
         logger.info(f'creating a user with email: {user_req.email}')
@@ -29,10 +29,10 @@ class UserService:
             db.add(user)
         except ValueError as e:
             logger.error(f'invalid value: {str(e)}')
-            raise HTTPException(status_code=400, detail=f'invalid value: {str(e)}')
+            raise BadRequestException(f'invalid value: {str(e)}')
         except Exception as e:
             logger.error(f'error creating user: {str(e)}')
-            raise HTTPException(status_code=500, detail=f'error creating user: {str(e)}')
+            raise ServerException(f'error creating user: {str(e)}')
 
     def get_by_id(self, user_id, db):
         try:
@@ -40,7 +40,7 @@ class UserService:
             return self.dto.to_user_response(user)
         except Exception as e:
             logger.error(f'error creating user: {str(e)}')
-            raise HTTPException(status_code=500, detail=f'error creating user: {str(e)}')
+            raise ServerException(f'error creating user: {str(e)}')
 
     def delete_by_id(self, user_id, db):
         try:
@@ -48,4 +48,4 @@ class UserService:
             db.delete(user)
         except Exception as e:
             logger.error(f'error deleting a user: {str(e)}')
-            raise HTTPException(status_code=500, detail=f'error creating user: {str(e)}')
+            raise ServerException(f'error creating user: {str(e)}')
