@@ -13,4 +13,4 @@ class AuthRoute:
         self.router.post("/login")(self.login)
 
     def login(self, login_data: Annotated[OAuth2PasswordRequestForm, Depends()], request: Request):
-        return self.auth_service.authenticate_user(login_data.username, login_data.password, request.state.db)
+        return self.auth_service.login(login_data.username, login_data.password, request.state.db)

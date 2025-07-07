@@ -12,7 +12,7 @@ from src.core.security import bcrypt_context
 
 class AuthService:
 
-    def authenticate_user(self, email: str, password: str, db):
+    def login(self, email: str, password: str, db):
         stmt = select(User).where(User.email == email)
         user: User = db.exec(stmt).first()
         logger.debug(f'authenticating user {user.email}')
@@ -43,13 +43,12 @@ class AuthService:
             return {'access_token': access_token, 'token_type': 'bearer'}
         raise HTTPException(401, UN_AUTHENTICATED)
 
-    def check_user(self, user):
-        logger.debug(f"User {user}")
-        if user is None:
-            logger.debug(f"{user}")
+    def check_user(self, user_id, user_sess):
+        logger.debug(f"User {user_sess}")
+        if user_sess is None or user_sess.get("id") != user_id:
+            logger.warning("Authentication Failed!")
             raise HTTPException(401, "Authentication Failed!")
 
-    def check_admin(self, user):
-        self.check_user(user)
-        if user.get('role') != Role.ADMIN:
+    def check_admin(self, user_sess):
+        if user_sess is None or user_sess.get('role') != Role.ADMIN:
             raise HTTPException(403, "Authorization Failed!")
