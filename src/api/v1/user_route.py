@@ -33,6 +33,7 @@ class UserRoute:
         logger.info(f'{user_sess.get("email")} retrieving info')
         return self.user_service.get_by_id(user_id, request.state.db)
 
-    def delete_by_id(self, user_id, request: Request):
+    def delete_by_id(self, user_id, user_sess: user_session, request: Request):
+        self.user_service.auth_service.check_admin(user_sess)
         logger.info('getting a user by id.')
         return self.user_service.delete_by_id(user_id, request.state.db)

@@ -5,7 +5,7 @@ from loguru import logger
 from sqlmodel import select
 
 from src.db.models import Role, User
-from src.utils.env_vars import secret_key, algorithm
+from src.core.env_vars import secret_key, algorithm
 from src.core.constants import UN_AUTHENTICATED
 from src.core.security import bcrypt_context
 
@@ -34,18 +34,9 @@ class AuthService:
         encode = {"sub": email, "id": user_id, "role": role, "exp": expires}
         return jwt.encode(encode, secret_key, algorithm=algorithm)
 
-    def authenticate_user(self, email: str, password: str, db):
-        logger.debug(f"Authenticating {email}")
-        user: User = db.query(User).filter(User.email == email).first()
-        if user and self.verify_password(password, user.hashed_password):
-            access_token = self.create_access_token(
-                email, user.id, user.role, timedelta(minutes=20))
-            return {'access_token': access_token, 'token_type': 'bearer'}
-        raise HTTPException(401, UN_AUTHENTICATED)
-
     def check_user(self, user_id, user_sess):
         logger.debug(f"User {user_sess}")
-        if user_sess is None or user_sess.get("id") != user_id:
+        if user_sess is None or user_sess.get("id") != int(user_id):
             logger.warning("Authentication Failed!")
             raise HTTPException(401, "Authentication Failed!")
 

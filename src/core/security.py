@@ -6,7 +6,7 @@ from jose import jwt, JWTError
 from typing import Annotated
 
 from src.core.constants import UN_AUTHENTICATED
-from src.utils.env_vars import secret_key, algorithm
+from src.core.env_vars import secret_key, algorithm
 
 bcrypt_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_bearer = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login")

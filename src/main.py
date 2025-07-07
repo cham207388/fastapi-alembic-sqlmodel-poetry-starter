@@ -6,7 +6,8 @@ from src.api.v1.auth_route import AuthRoute
 from src.api.v1.user_route import UserRoute
 from src.services.auth_service import AuthService
 from src.services.user_service import UserService
-from src.utils.middle_ware import SQLModelSessionMiddleware, LoggingMiddleware
+from src.utils.logging_middleware import LoggingMiddleware
+from src.utils.sql_middleware import SQLModelSessionMiddleware
 from src.db.session import engine
 
 app = FastAPI()
