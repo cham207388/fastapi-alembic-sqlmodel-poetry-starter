@@ -1,7 +1,7 @@
 from datetime import timedelta, datetime, timezone
 from jose import jwt
 from loguru import logger
-from sqlmodel import select
+from sqlmodel import select, Session
 
 from src.db.models import Role, User
 from src.core.env_vars import secret_key, algorithm
@@ -12,7 +12,7 @@ from src.utils.exceptions import AuthenticationException, AuthorizationException
 
 class AuthService:
 
-    def login(self, email: str, password: str, db):
+    def login(self, email: str, password: str, db: Session):
         stmt = select(User).where(User.email == email)
         user: User = db.exec(stmt).first()
         logger.debug(f'authenticating user {user.email}')
