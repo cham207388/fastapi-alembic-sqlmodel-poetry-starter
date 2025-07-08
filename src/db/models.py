@@ -2,6 +2,7 @@ from enum import Enum
 from pydantic import EmailStr, field_validator
 from typing import Optional
 from sqlmodel import Field, SQLModel
+from datetime import datetime, timezone
 
 
 class Role(str, Enum):
@@ -24,3 +25,9 @@ class User(SQLModel, table=True):
         if not value.strip():
             raise ValueError("Name cannot be empty")
         return value
+
+class AuditMixin(SQLModel):
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc), nullable=False)
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc), nullable=False)
+    created_by: Optional[str] = Field(default=None, nullable=True)  # Could be user email or ID
+    updated_by: Optional[str] = Field(default=None, nullable=True)
