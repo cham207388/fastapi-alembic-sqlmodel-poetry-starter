@@ -2,23 +2,69 @@ from datetime import datetime, timezone
 from sqlalchemy import event
 from sqlmodel import SQLModel
 from src.core.audit_context import current_user_email
+from loguru import logger
+
+
+def _set_audit_field(target, field, value):
+    try:
+        setattr(target, field, value)
+    except Exception as e:
+        logger.warning(f"Failed to set audit field '{field}' on '{type(target).__name__}': {e}")
+
+
+def set_fields(target, **fields):
+    for field, value in fields.items():
+        _set_audit_field(target, field, value)
+
+
+def _get_current_user_email():
+    email = current_user_email.get()
+    return email if email else "anonymous"
+
+
+def _audit_fields(target):
+    # Return a dict of audit fields present on the target
+    return {field: getattr(target, field, None) for field in (
+        "created_at", "updated_at", "created_by", "updated_by"
+    ) if hasattr(target, field)}
 
 
 @event.listens_for(SQLModel, "before_update", propagate=True)
 def auto_update_audit_fields(mapper, connection, target):
-    if hasattr(target, "updated_at"):
-        target.updated_at = datetime.now(timezone.utc)
-    if hasattr(target, "updated_by"):
-        target.updated_by = current_user_email.get()
+    fields = _audit_fields(target)
+    now = datetime.now(timezone.utc)
+    user = _get_current_user_email()
+
+    match fields:
+        case {"updated_at": _, "updated_by": _}:
+            set_fields(target, updated_at=now, updated_by=user)
+        case {"updated_at": _}:
+            set_fields(target, updated_at=now)
+        case {"updated_by": _}:
+            set_fields(target, updated_by=user)
+        case _:
+            pass
 
 
 @event.listens_for(SQLModel, "before_insert", propagate=True)
 def auto_insert_audit_fields(mapper, connection, target):
-    if hasattr(target, "created_at"):
-        target.created_at = datetime.now(timezone.utc)
-    if hasattr(target, "updated_at"):
-        target.updated_at = datetime.now(timezone.utc)
-    if hasattr(target, "created_by"):
-        target.created_by = current_user_email.get()
-    if hasattr(target, "updated_by"):
-        target.updated_by = current_user_email.get()
+    fields = _audit_fields(target)
+    now = datetime.now(timezone.utc)
+    user = _get_current_user_email()
+
+    match fields:
+        case {"created_at": _, "updated_at": _, "created_by": _, "updated_by": _}:
+            set_fields(
+                target,
+                created_at=now,
+                updated_at=now,
+                created_by=user,
+                updated_by=user
+            )
+        case _:
+            for field in fields:
+                match field:
+                    case "created_at" | "updated_at":
+                        set_fields(target, **{field: now})
+                    case "created_by" | "updated_by":
+                        set_fields(target, **{field: user})

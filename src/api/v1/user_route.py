@@ -25,7 +25,8 @@ class UserRoute:
 
     def create_user(self, user_data: CreateUserRequest, request: Request):
         logger.info('creating a user.')
-        self.user_service.create_user(user_data, request.state.db)
+        user = self.user_service.dto.to_user(user_data)
+        self.user_service.create_user(user, request.state.db)
 
     def get_by_id(self, user_id, user_sess: user_session, request: Request):
         self.user_service.auth_service.check_user(user_id, user_sess)

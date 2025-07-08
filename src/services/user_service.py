@@ -20,11 +20,10 @@ class UserService:
         except Exception as e:
             raise ServerException(f'error creating user: {str(e)}')
 
-    def create_user(self, user_req: User, db):
-        logger.info(f'creating a user with email: {user_req.email}')
-        logger.info(f'user_req: {user_req}')
+    def create_user(self, user: User, db):
+        logger.info(f'creating a user with email: {user.email}')
+        logger.info(f'user_req: {user}')
         try:
-            user: User = self.dto.to_user(user_req)
             logger.info(f'user: {user}')
             db.add(user)
         except ValueError as e:

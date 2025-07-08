@@ -9,8 +9,13 @@ class Role(str, Enum):
     ADMIN = "admin"
     USER = "user"
 
+class AuditMixin(SQLModel):
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc), nullable=False)
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc), nullable=False)
+    created_by: Optional[str] = Field(default=None, nullable=True)  # Could be user email or ID
+    updated_by: Optional[str] = Field(default=None, nullable=True)
 
-class User(SQLModel, table=True):
+class User(AuditMixin, table=True):
     __tablename__ = "users"
 
     id: Optional[int] = Field(default=None, primary_key=True)
@@ -25,9 +30,3 @@ class User(SQLModel, table=True):
         if not value.strip():
             raise ValueError("Name cannot be empty")
         return value
-
-class AuditMixin(SQLModel):
-    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc), nullable=False)
-    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc), nullable=False)
-    created_by: Optional[str] = Field(default=None, nullable=True)  # Could be user email or ID
-    updated_by: Optional[str] = Field(default=None, nullable=True)

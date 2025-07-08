@@ -24,7 +24,8 @@ dcu: ## Start Kafka cluster
 
 dcd: ## Stop Kafka cluster
 	docker compose -f compose.yaml down -v
-
+setup:
+	$(POETRY) install
 server: ## start the backend application
 	$(POETRY) run uvicorn src.main:app --reload
 
@@ -42,3 +43,6 @@ path:
 
 migration:
 	$(POETRY) run alembic upgrade head
+sleep2:
+	sleep 2
+all: dcu sleep2 setup migration server

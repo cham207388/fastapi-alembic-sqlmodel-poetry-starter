@@ -1,3 +1,5 @@
+from datetime import datetime, timezone
+
 from pydantic import EmailStr, field_validator, ConfigDict
 from sqlmodel import Field, SQLModel
 
@@ -45,7 +47,6 @@ class Dto:
             first_name=request.first_name,
             last_name=request.last_name,
             hashed_password=bcrypt_context.hash(request.password),
-            # role=Role.USER if request.role == 'user' else Role.ADMIN
             role=Role(request.role)
         )
 
@@ -57,3 +58,8 @@ class Dto:
             last_name=user.last_name,
             role=user.role,
         )
+# ,
+#             created_at=datetime.now(timezone.utc),
+#             updated_at=datetime.now(timezone.utc),
+#             created_by=request.email,
+#             updated_by=request.email
