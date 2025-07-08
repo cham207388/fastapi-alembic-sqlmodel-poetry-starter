@@ -1,7 +1,7 @@
-from sqlmodel import select
+from sqlmodel import select, Session
 from loguru import logger
 
-from src.schemas.user import Dto
+from src.schemas.user import Dto, CreateUserRequest
 from src.services.auth_service import AuthService
 from src.db.models import User
 from src.utils.exceptions import BadRequestException, ServerException
@@ -20,9 +20,9 @@ class UserService:
         except Exception as e:
             raise ServerException(f'error creating user: {str(e)}')
 
-    def create_user(self, user: User, db):
-        logger.info(f'creating a user with email: {user.email}')
-        logger.info(f'user_req: {user}')
+    def create_user(self, user_data: CreateUserRequest, db):
+        logger.info(f'creating a user with email: {user_data.email}')
+        user = self.dto.to_user(user_data)
         try:
             logger.info(f'user: {user}')
             db.add(user)
@@ -48,3 +48,17 @@ class UserService:
         except Exception as e:
             logger.error(f'error deleting a user: {str(e)}')
             raise ServerException(f'error creating user: {str(e)}')
+
+    def update_user(self, user_id, user_data, db_session: Session):
+        try:
+            saved_user: User = db_session.get(User, user_id)
+            user = self.dto.update_user(user_data, saved_user)
+            db_session.add(user)
+            db_session.commit()
+            return self.dto.to_user_response(user)
+        except ValueError as e:
+            logger.error(f'invalid value: {str(e)}')
+            raise BadRequestException(f'invalid value: {str(e)}')
+        except Exception as e:
+            logger.error(f'error creating user: {str(e)}')
+            raise ServerException(f'error updating user: {str(e)}')

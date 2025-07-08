@@ -12,4 +12,14 @@ A Python and fastapi starter project
 | testing               | pytest<br/>six<br/>mockito         | unit testing by mocking dependencies    |
 | logging               | loguru                             | simple logging                          |
 | dependency management | NA                                 | NA                                      |
-  
+
+## Auditing
+
+The following fields are added for auditing purpose.
+
+- created_at
+- updated_at
+- created_by
+- updated_by
+
+Using middleware and context to set this values. Timestamp for date fields and

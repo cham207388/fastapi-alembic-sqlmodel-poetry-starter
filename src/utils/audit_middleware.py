@@ -3,6 +3,7 @@ from fastapi import Request
 from jose import jwt, JWTError
 from src.core.audit_context import current_user_email
 from src.core.env_vars import secret_key, algorithm
+from loguru import logger
 
 class AuditMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
@@ -13,10 +14,12 @@ class AuditMiddleware(BaseHTTPMiddleware):
                 payload = jwt.decode(token, secret_key, algorithms=algorithm)
                 email = payload.get("sub")
                 if email:
+                    logger.debug(f"[AUDIT] Setting current_user_email to: {email}")
                     current_user_email.set(email)
-            except JWTError:
-                # Optionally log or skip setting user context
-                pass
+            except JWTError as e:
+                logger.warning(f"[AUDIT] Invalid token: {str(e)}")
+        else:
+            logger.warning("[AUDIT] No Authorization token found")
 
         response = await call_next(request)
         return response

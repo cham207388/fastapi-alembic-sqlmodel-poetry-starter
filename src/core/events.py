@@ -31,9 +31,11 @@ def _audit_fields(target):
 
 @event.listens_for(SQLModel, "before_update", propagate=True)
 def auto_update_audit_fields(mapper, connection, target):
+    logger.debug(f"[AUDIT] before_update fired for {target}")
     fields = _audit_fields(target)
     now = datetime.now(timezone.utc)
     user = _get_current_user_email()
+    logger.debug(f"[AUDIT] Updating fields with user={user}")
 
     match fields:
         case {"updated_at": _, "updated_by": _}:
@@ -42,8 +44,6 @@ def auto_update_audit_fields(mapper, connection, target):
             set_fields(target, updated_at=now)
         case {"updated_by": _}:
             set_fields(target, updated_by=user)
-        case _:
-            pass
 
 
 @event.listens_for(SQLModel, "before_insert", propagate=True)

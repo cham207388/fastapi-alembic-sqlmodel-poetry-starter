@@ -4,7 +4,7 @@ from fastapi import APIRouter, Request, status
 from loguru import logger
 
 from src.core.security import user_session
-from src.schemas.user import CreateUserRequest, UserResponse
+from src.schemas.user import CreateUserRequest, UserResponse, UpdateUserRequest
 from src.services.user_service import UserService
 
 
@@ -16,6 +16,7 @@ class UserRoute:
         self.router.get("", response_model=List[UserResponse])(self.get_all)
         self.router.post("", status_code=status.HTTP_201_CREATED)(self.create_user)
         self.router.get("/{user_id}")(self.get_by_id)
+        self.router.patch("/{user_id}", response_model=UserResponse)(self.update_user)
         self.router.delete("/{user_id}")(self.delete_by_id)
 
     def get_all(self, user_sess: user_session, request: Request) -> List[UserResponse]:
@@ -25,8 +26,12 @@ class UserRoute:
 
     def create_user(self, user_data: CreateUserRequest, request: Request):
         logger.info('creating a user.')
-        user = self.user_service.dto.to_user(user_data)
-        self.user_service.create_user(user, request.state.db)
+        self.user_service.create_user(user_data, request.state.db)
+
+    def update_user(self, user_id: int, user_data: UpdateUserRequest, user_sess: user_session, request: Request):
+        logger.info('updating a user.')
+        self.user_service.auth_service.check_user(user_id, user_sess)
+        return self.user_service.update_user(user_id, user_data, request.state.db)
 
     def get_by_id(self, user_id, user_sess: user_session, request: Request):
         self.user_service.auth_service.check_user(user_id, user_sess)

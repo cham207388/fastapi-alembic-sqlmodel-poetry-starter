@@ -1,4 +1,5 @@
 from datetime import datetime, timezone
+from typing import Optional
 
 from pydantic import EmailStr, field_validator, ConfigDict
 from sqlmodel import Field, SQLModel
@@ -33,6 +34,27 @@ class CreateUserRequest(SQLModel):
             raise ValueError("Name cannot be empty")
         return value
 
+class UpdateUserRequest(SQLModel):
+    email: Optional[EmailStr] = None
+    first_name: Optional[str] = Field(default=None, min_length=3, max_length=15)
+    last_name: Optional[str] = Field(default=None, min_length=3, max_length=15)
+
+    model_config = ConfigDict(
+        json_schema_extra={
+            "example": {
+                "email": "updated@email.com",
+                "first_name": "Updated First",
+                "last_name": "Updated Last",
+            }
+        }
+    )
+
+    @field_validator("first_name", "last_name")
+    def validate_name(cls, value):
+        if value is not None and not value.strip():
+            raise ValueError("Name cannot be empty")
+        return value
+
 class UserResponse(SQLModel):
     id: int
     email: str
@@ -58,8 +80,8 @@ class Dto:
             last_name=user.last_name,
             role=user.role,
         )
-# ,
-#             created_at=datetime.now(timezone.utc),
-#             updated_at=datetime.now(timezone.utc),
-#             created_by=request.email,
-#             updated_by=request.email
+
+    def update_user(self, request: UpdateUserRequest, user: User):
+        for field, value in request.model_dump(exclude_unset=True).items():
+            setattr(user, field, value)
+        return user
