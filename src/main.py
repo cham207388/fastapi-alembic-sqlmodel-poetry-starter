@@ -6,6 +6,7 @@ from src.api.v1.auth_route import AuthRoute
 from src.api.v1.user_route import UserRoute
 from src.services.auth_service import AuthService
 from src.services.user_service import UserService
+from src.utils.audit_middleware import AuditMiddleware
 from src.utils.logging_middleware import LoggingMiddleware
 from src.utils.sql_middleware import SQLModelSessionMiddleware
 from src.db.session import engine
@@ -14,6 +15,8 @@ app = FastAPI()
 # Add middleware for DB session management
 app.add_middleware(SQLModelSessionMiddleware, db_engine=engine)
 app.add_middleware(LoggingMiddleware)
+# Then audit middleware (after DB session is available)
+app.add_middleware(AuditMiddleware)
 
 # Create instrumentation instance
 instrumentation = Instrumentator().instrument(app).expose(app)
