@@ -1,6 +1,8 @@
 from fastapi import FastAPI
 from prometheus_fastapi_instrumentator import Instrumentator
+from contextlib import asynccontextmanager
 
+from src.core.events import init_events
 from src.schemas.user import Dto
 from src.api.v1.auth_route import AuthRoute
 from src.api.v1.user_route import UserRoute
@@ -11,7 +13,12 @@ from src.utils.logging_middleware import LoggingMiddleware
 from src.utils.sql_middleware import SQLModelSessionMiddleware
 from src.db.session import engine
 
-app = FastAPI()
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    init_events()  # ✅ register audit listeners here
+    yield
+app = FastAPI(lifespan=lifespan)
 # Add middleware for DB session management
 app.add_middleware(SQLModelSessionMiddleware, db_engine=engine)
 app.add_middleware(LoggingMiddleware)

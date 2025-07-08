@@ -53,8 +53,8 @@ class UserService:
         try:
             saved_user: User = db_session.get(User, user_id)
             user = self.dto.update_user(user_data, saved_user)
-            db_session.add(user)
             db_session.commit()
+            db_session.refresh(user)
             return self.dto.to_user_response(user)
         except ValueError as e:
             logger.error(f'invalid value: {str(e)}')
