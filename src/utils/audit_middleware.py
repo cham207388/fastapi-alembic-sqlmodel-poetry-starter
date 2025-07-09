@@ -1,9 +1,10 @@
 from starlette.middleware.base import BaseHTTPMiddleware
 from fastapi import Request
 from jose import jwt, JWTError
+from loguru import logger
 from src.core.audit_context import current_user_email
 from src.core.env_vars import secret_key, algorithm
-from loguru import logger
+
 
 class AuditMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
