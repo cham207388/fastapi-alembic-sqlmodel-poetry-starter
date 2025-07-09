@@ -20,7 +20,7 @@ class UserRoute:
         self.router.delete("/{user_id}")(self.delete_by_id)
 
     def get_all(self, user_sess: user_session, request: Request) -> List[UserResponse]:
-        self.user_service.auth_service.check_admin(user_sess)
+        self.user_service.auth_service.is_logged_in_admin(user_sess)
         logger.info(f'{user_sess.get("email")} fetching users.')
         return self.user_service.get_all(request.state.db)
 
@@ -30,15 +30,15 @@ class UserRoute:
 
     def update_user(self, user_id: int, user_data: UpdateUserRequest, user_sess: user_session, request: Request):
         logger.info('updating a user.')
-        self.user_service.auth_service.check_user(user_id, user_sess)
+        self.user_service.auth_service.is_logged_in_user_or_admin(user_id, user_sess)
         return self.user_service.update_user(user_id, user_data, request.state.db)
 
     def get_by_id(self, user_id: int, user_sess: user_session, request: Request):
-        self.user_service.auth_service.check_user(user_id, user_sess)
+        self.user_service.auth_service.is_logged_in_user(user_id, user_sess)
         logger.info(f'{user_sess.get("email")} retrieving info')
         return self.user_service.get_by_id(user_id, request.state.db)
 
     def delete_by_id(self, user_id: int, user_sess: user_session, request: Request):
-        self.user_service.auth_service.check_admin(user_sess)
+        self.user_service.auth_service.is_logged_in_admin(user_sess)
         logger.info('getting a user by id.')
         return self.user_service.delete_by_id(user_id, request.state.db)

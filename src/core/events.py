@@ -39,14 +39,20 @@ def init_events():
         now = datetime.now(timezone.utc)
         user = _get_current_user_email()
 
+        # If no user is logged in, use the email of the user being created (if available)
+        if user == "anonymous" and hasattr(target, "email"):
+            user_email = getattr(target, "email", "anonymous")
+        else:
+            user_email = user
+
         match fields:
             case {"created_at": _, "updated_at": _, "created_by": _, "updated_by": _}:
                 set_fields(
                     target,
                     created_at=now,
                     updated_at=now,
-                    created_by=user,
-                    updated_by=user
+                    created_by=user_email,
+                    updated_by=user_email
                 )
             case _:
                 for field in fields:
@@ -54,7 +60,7 @@ def init_events():
                         case "created_at" | "updated_at":
                             set_fields(target, **{field: now})
                         case "created_by" | "updated_by":
-                            set_fields(target, **{field: user})
+                            set_fields(target, **{field: user_email})
 
 
 def _set_audit_field(target, field, value):
