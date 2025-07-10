@@ -3,7 +3,6 @@ from prometheus_fastapi_instrumentator import Instrumentator
 from contextlib import asynccontextmanager
 
 from src.core.events import init_events
-from src.schemas.user import Dto
 from src.api.v1.auth_route import AuthRoute
 from src.api.v1.user_route import UserRoute
 from src.services.auth_service import AuthService
@@ -29,8 +28,7 @@ app.add_middleware(AuditMiddleware)
 instrumentation = Instrumentator().instrument(app).expose(app)
 
 auth_service = AuthService()
-dto = Dto()
-user_service = UserService(auth_service, dto)
+user_service = UserService(auth_service)
 user_route = UserRoute(user_service)
 auth_route = AuthRoute(auth_service)
 
