@@ -49,3 +49,5 @@ class AuthService:
                 user_sess.get("id") != int(user_id) and user_sess.get("role") != Role.ADMIN
         ):
             raise AuthorizationException("Authorization Failed!")
+# user is none
+# 1 != 2 and role = admin
